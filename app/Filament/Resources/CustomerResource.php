@@ -32,19 +32,19 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('contact_person')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('contact_no')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('city')
-                    ->required()
-                    ->maxLength(255),
+                // Forms\Components\TextInput::make('contact_person')
+                //     ->required()
+                //     ->maxLength(255),
+                // Forms\Components\TextInput::make('contact_no')
+                //     ->required()
+                //     ->maxLength(255),
+                // Forms\Components\TextInput::make('email')
+                //     ->email()
+                //     ->maxLength(255)
+                //     ->default(null),
+                // Forms\Components\TextInput::make('city')
+                //     ->required()
+                //     ->maxLength(255),
             ]);
     }
 
@@ -95,7 +95,7 @@ class CustomerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+                    RelationManagers\OrdersRelationManager::class,
         ];
     }
 
