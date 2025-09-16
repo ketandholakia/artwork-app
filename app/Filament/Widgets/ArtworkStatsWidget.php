@@ -20,20 +20,34 @@ class ArtworkStatsWidget extends BaseWidget
                 ->color('primary')
                 ->url(route('filament.admin.resources.artworks.index')),
             
-            Stat::make('Completed Artworks', Order::where('completed', true)->count())
-                ->description('Successfully completed orders')
+            Stat::make('Completed Artworks', Artwork::where('prepressstage', true)->count())
+                ->description('Successfully proceeded Artworks')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
             
-            Stat::make('Pending Orders', Order::where('completed', false)->count())
-                ->description('Orders still in progress')
+            Stat::make('Pending Artworks', Artwork::where('prepressstage', false)->count())
+                ->description('Artworks still pending')
                 ->descriptionIcon('heroicon-m-clock')
-                ->color('warning'),
-            
-            Stat::make('High Priority', Order::where('priority', '>=', 3)->count())
-                ->description('Orders with priority level 3+')
+                ->color('warning')
+                 ->url(route('filament.admin.resources.artworks.index', [
+                    'tableFilters' => [
+                        'prepressstage' => [
+                            'value' => '0'
+                        ]
+                    ]
+                ])),
+        
+           Stat::make('High Priority', Artwork::where('priority', '=', 1)->count())
+                ->description('Artwork with priority level 3+')
                 ->descriptionIcon('heroicon-m-exclamation-circle')
-                ->color('danger'),
+                ->color('danger')
+                ->url(route('filament.admin.resources.artworks.index', [
+                    'tableFilters' => [
+                        'priority' => [
+                            'value' => 'high'
+                        ]
+                    ]
+                ])),      
         ];
     }
 }

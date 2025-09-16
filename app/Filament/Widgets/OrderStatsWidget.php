@@ -28,7 +28,8 @@ class OrderStatsWidget extends BaseWidget
             Stat::make('Pending Orders', Order::where('completed', false)->count())
                 ->description('Orders still in progress')
                 ->descriptionIcon('heroicon-m-clock')
-                ->color('warning'),
+                ->color('warning')
+                ->url(route('filament.admin.resources.orders.index', ['tableFilters[completed][value]' => false])),
             
             Stat::make('High Priority', Order::where('priority', '>=', 3)->count())
                 ->description('Orders with priority level 3+')

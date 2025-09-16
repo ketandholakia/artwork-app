@@ -13,6 +13,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use App\Filament\Widgets\OrderStatsWidget;  
+use Filament\Tables\Filters\SelectFilter;
 
 class OrderResource extends Resource
 {
@@ -109,7 +113,13 @@ class OrderResource extends Resource
             ])->defaultSort('updated_at', 'desc')
             ->striped()
             ->filters([
-                //
+              SelectFilter::make('completed')
+                    ->options([
+                        true => 'Completed',
+                        false => 'Pending',
+                    ])
+                    ->label('Order Status')
+                    ->placeholder('All Statuses'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -119,7 +129,13 @@ class OrderResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    
                 ]),
+
+                ExportBulkAction::make()->exports([
+                    ExcelExport::make('table')->fromTable(),
+                    ExcelExport::make('all')->fromModel(),
+                ]),    
             ]);
     }
 
@@ -133,7 +149,7 @@ class OrderResource extends Resource
     public static function getWidgets(): array
     {
         return [
-            OrderResource\Pages\ListOrders\Widgets\OrderStats::class,
+              OrderStatsWidget::class,
         ];
     }
 

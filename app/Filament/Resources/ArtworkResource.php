@@ -12,9 +12,12 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Filters\SelectFilter;
 
 class ArtworkResource extends Resource
 {
+    protected static ?string $title = null;
+
     protected static ?string $model = Artwork::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -114,7 +117,22 @@ class ArtworkResource extends Resource
              ->striped()
 
             ->filters([
-                //
+                  SelectFilter::make('prepressstage')
+                    ->options([
+                        '1' => 'Completed',
+                        '0' => 'Pending',
+                    ])
+                    ->label('Prepress Stage')
+                    ->attribute('prepressstage'),
+                     SelectFilter::make('priority')
+                ->options([
+                    '1' => 'High',
+                    '2' => 'Medium',
+                    '3' => 'Low',
+                    // Add more options if you have more priority levels
+                ])
+                ->label('Priority'),
+                // ... any other filters you might have ...
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
