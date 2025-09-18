@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\ArtworkResource\Pages;
 use App\Filament\Resources\ArtworkResource\RelationManagers;
 use App\Models\Artwork;
@@ -16,11 +17,57 @@ use Filament\Tables\Filters\SelectFilter;
 
 class ArtworkResource extends Resource
 {
-    protected static ?string $title = null;
-
     protected static ?string $model = Artwork::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
+    protected static ?string $navigationLabel = 'Artworks';
+ 
+    // Enable global search for this resource
+       protected static bool $isGloballySearchable = true;
+    
+    // Define the main attribute to display in search results
+    protected static ?string $recordTitleAttribute = 'description';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        // Only include actual database columns, not accessors
+        return ['description', 'remark', 'awstatus', 'type'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Order' => $record->order?->orderno ?? 'No Order',
+            'Customer' => $record->order?->customer?->name ?? 'No Customer',
+            'Status' => $record->awstatus,
+            'Priority' => $record->priority,
+        ];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return self::getUrl('view', ['record' => $record]);
+    }
+
+    // Modify the global search query to include relationships and search in related tables
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        $query = parent::getGlobalSearchEloquentQuery()->with(['order', 'order.customer']);
+
+        // Add search capability for related tables
+        $query->orWhereHas('order', function (Builder $query) {
+            $query->where('orderno', 'like', '%' . request('search') . '%');
+        });
+
+        $query->orWhereHas('order.customer', function (Builder $query) {
+            $query->where('name', 'like', '%' . request('search') . '%');
+        });
+
+        return $query;
+    }
+
+
 
     public static function form(Form $form): Form
     {
@@ -74,9 +121,16 @@ class ArtworkResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('description')
-                    ->searchable(),
-                 Tables\Columns\TextColumn::make('order_no')
+                Tables\Columns\IconColumn::make('Done')
+                    ->boolean(),
+             Tables\Columns\TextColumn::make('description')
+                ->searchable()
+                ->limit(50)
+                ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                    $state = $column->getState();
+                    return strlen($state) > 50 ? $state : null;
+                }),
+              Tables\Columns\TextColumn::make('order_no')
                     ->label('Order No')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('order', function (Builder $query) use ($search) {
@@ -97,8 +151,7 @@ class ArtworkResource extends Resource
                 Tables\Columns\TextColumn::make('remark')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('awstatus'),
-                Tables\Columns\IconColumn::make('prepressstage')
-                    ->boolean(),
+                
                 Tables\Columns\TextColumn::make('type'),
                 Tables\Columns\TextColumn::make('priority'),
                 Tables\Columns\TextColumn::make('url')

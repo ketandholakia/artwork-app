@@ -66,9 +66,23 @@ class OrderResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\TextInput::make('status')
+                 Forms\Components\Select::make('status')
+                    ->options([
+                        'neworder' => 'New Order',
+                        'approved' => 'Approved',
+                        'cancelled' => 'Cancelled',
+                        'delivered' => 'Delivered',
+                    ])
+                    ->default('approved')
                     ->required(),
-                Forms\Components\TextInput::make('priority')
+                Forms\Components\Select::make('priority')
+                    ->options([
+                        'high' => 'High',
+                        'medium' => 'Medium',
+                        'low' => 'low',
+                        
+                    ])
+                     ->default('medium')
                     ->required(),
                 Forms\Components\TextInput::make('url')
                     ->maxLength(2048)
